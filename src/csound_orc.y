@@ -162,6 +162,7 @@ statement : out_arg_list '=' expr NEWLINE
 */
 opcall  : T_IDENT NEWLINE
         | out_arg_list expr_list NEWLINE 
+        | out_arg_list '(' ')' NEWLINE
         | out_arg_list T_IDENT expr_list NEWLINE
         ;
 

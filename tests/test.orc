@@ -8,6 +8,9 @@ dosomething (4)
 dosomething (4), 5, 6
 dosomething(4)
 
+a = dosomething()
+dosomething()
+
 asig = 5.5
 asig2 = 0
 asig3:a = 4
