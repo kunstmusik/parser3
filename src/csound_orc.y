@@ -144,6 +144,7 @@ statement_list : statement_list statement
 
 
 statement : out_arg_list '=' expr NEWLINE
+          | function_call NEWLINE
           | opcall
           | if_goto
           | if_then
@@ -179,11 +180,10 @@ elseif_list : elseif_list elseif
 elseif : ELSEIF_TOKEN expr then NEWLINE statement_list
        ;
 
-functioncall : T_TYPED_IDENT '(' expr_list ')'
+function_call : T_TYPED_IDENT '(' expr_list ')'
              | T_TYPED_IDENT '(' ')'
              | T_IDENT '(' expr_list ')'
              | T_IDENT '(' ')'
-
              ;
 
 expr_list : expr_list ',' expr
@@ -202,7 +202,7 @@ out_arg : T_IDENT
 array : T_IDENT '[' expr ']'
       ;
 
-expr    : functioncall
+expr    : function_call
         | '(' expr ')'
         | T_IDENT
         | INTEGER_TOKEN
