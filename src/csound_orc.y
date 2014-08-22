@@ -144,7 +144,6 @@ statement_list : statement_list statement
 
 
 statement : out_arg_list '=' expr NEWLINE
-          | function_call NEWLINE
           | opcall
           | if_goto
           | if_then
@@ -155,9 +154,14 @@ statement : out_arg_list '=' expr NEWLINE
 /* 
   opcode calls that we need to worry about during parsing
   0  op  0  - no in or out args, single name
+  
+  something(a)
+  something (a)
+ 
+  - this is a function call, but we will match it as an opcall to prevent shift/reduce
 */
 opcall  : T_IDENT NEWLINE
-        | out_arg_list expr_list NEWLINE
+        | out_arg_list expr_list NEWLINE 
         | out_arg_list T_IDENT expr_list NEWLINE
         ;
 
