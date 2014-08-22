@@ -52,6 +52,7 @@ int csound_orcerror(char* errstr) {
 
 %token INSTR_TOKEN
 %token ENDIN_TOKEN
+%token END_TOKEN
 %token GOTO_TOKEN
 %token KGOTO_TOKEN
 %token IGOTO_TOKEN
@@ -64,6 +65,8 @@ int csound_orcerror(char* errstr) {
 %token ZERODBFS_TOKEN
 %token STRING_TOKEN
 %token T_IDENT
+%token T_TYPED_IDENT
+%token T_PLUS_IDENT
 
 %token INTEGER_TOKEN
 %token NUMBER_TOKEN
@@ -112,29 +115,109 @@ int csound_orcerror(char* errstr) {
 
 %%
 
-orcfile : statementlist;
+orcfile : root_statement_list;
 
-statementlist : statementlist statement 
+root_statement_list : root_statement_list root_statement
+                    | root_statement;
+        
+root_statement : instr_definition
+               | statement
+               ;
+
+instr_definition : INSTR_TOKEN instr_id_list NEWLINE statement_list ENDIN_TOKEN  NEWLINE
+                 | INSTR_TOKEN instr_id_list NEWLINE statement_list END_TOKEN NEWLINE
+                 ;
+
+instr_id_list : instr_id_list ',' instr_id
+              | instr_id
+              ;
+
+instr_id      : INTEGER_TOKEN
+              | T_IDENT
+              | T_PLUS_IDENT
+              ;
+
+
+statement_list : statement_list statement 
               | statement
               ;
 
-statement : T_IDENT '=' expr NEWLINE
+
+statement : out_arg_list '=' expr NEWLINE
+          | opcall
+          | if_goto
+          | if_then
+          | LABEL_TOKEN NEWLINE
           | NEWLINE
           ;
 
-functioncall : T_IDENT '(' exprlist ')'
+/* 
+  opcode calls that we need to worry about during parsing
+  0  op  0  - no in or out args, single name
+*/
+opcall  : T_IDENT NEWLINE
+        | out_arg_list expr_list NEWLINE
+        | out_arg_list T_IDENT expr_list NEWLINE
+        ;
+
+if_goto : IF_TOKEN expr goto_op T_IDENT NEWLINE
+        ;
+
+if_then : if_then_base ENDIF_TOKEN NEWLINE
+        | if_then_base ELSE_TOKEN statement_list ENDIF_TOKEN NEWLINE
+        | if_then_base elseif_list ENDIF_TOKEN NEWLINE
+        | if_then_base elseif_list ELSE_TOKEN statement_list ENDIF_TOKEN NEWLINE
+        ;
+
+if_then_base : IF_TOKEN expr then NEWLINE statement_list
+              ;
+
+elseif_list : elseif_list elseif
+            | elseif
+            ;
+
+elseif : ELSEIF_TOKEN expr then NEWLINE statement_list
+       ;
+
+functioncall : T_TYPED_IDENT '(' expr_list ')'
+             | T_TYPED_IDENT '(' ')'
+             | T_IDENT '(' expr_list ')'
              | T_IDENT '(' ')'
 
              ;
 
-exprlist : exprlist ',' expr
+expr_list : expr_list ',' expr
          | expr
          ;
+
+out_arg_list : out_arg_list ',' out_arg
+             | out_arg
+             ;
+
+out_arg : T_IDENT
+        | T_TYPED_IDENT
+        | array
+        ;
+
+array : T_IDENT '[' expr ']'
+      ;
 
 expr    : functioncall
         | '(' expr ')'
         | T_IDENT
         | INTEGER_TOKEN
         | NUMBER_TOKEN
+        | array
         ;
 
+then  : THEN_TOKEN
+      | KTHEN_TOKEN
+      | ITHEN_TOKEN
+      ;
+
+/* OPERATORS */
+
+goto_op : GOTO_TOKEN
+        | IGOTO_TOKEN
+        | KGOTO_TOKEN
+        ;

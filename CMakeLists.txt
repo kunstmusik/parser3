@@ -30,7 +30,7 @@ add_custom_command(
 add_custom_command(
     SOURCE ${YACC_SRC}
     COMMAND ${BISON_EXECUTABLE}
-    ARGS -pcsound_orc -d --report=itemset -o ${YACC_OUT} ${YACC_SRC}
+    ARGS -pcsound_orc -d --report=lookahead -o ${YACC_OUT} ${YACC_SRC}
     TARGET NewParser
     DEPENDS ${LEX_OUT}
     OUTPUTS ${YACC_OUT})
